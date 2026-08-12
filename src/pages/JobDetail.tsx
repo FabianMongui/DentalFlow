@@ -3,7 +3,12 @@ import { Icons } from '../components/Icons';
 import { motion } from 'motion/react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { PaymentBadge, StatusBadge, formatCurrency, formatDate } from '../components/Common';
+import { Odontogram } from '../components/Odontogram';
+import { JobFormModal } from '../components/JobFormModal';
+import { Select } from '../components/Select';
+import { useAuth } from '../context/AuthContext';
 import { useDentalFlow } from '../context/DentalFlowContext';
+import { getVitaShadeHex } from '../lib/vitaShades';
 import type { CorrectionStatus, JobStatus, PaymentStatus } from '../types';
 
 const statusOptions: JobStatus[] = ['Recibido', 'En proceso', 'En corrección', 'Finalizado', 'Entregado', 'Cancelado'];
@@ -12,12 +17,17 @@ const paymentOptions: PaymentStatus[] = ['Pendiente', 'Parcial', 'Pagado'];
 const JobDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getJobById, getClientById, updateJobStatus, updatePaymentStatus, addCorrection } = useDentalFlow();
+  const { currentUser } = useAuth();
+  const { getJobById, getClientById, getPublicLabById, updateJobStatus, updatePaymentStatus, addCorrection } = useDentalFlow();
   const job = getJobById(id);
   const client = getClientById(job?.clientId);
+  const requestedLab = getPublicLabById(job?.requestedLabId);
+  const requestedService = requestedLab?.services.find((service) => service.id === job?.serviceId);
+  const canEdit = currentUser?.role === 'super_admin';
   const [correctionDescription, setCorrectionDescription] = useState('');
   const [requestedBy, setRequestedBy] = useState('');
   const [correctionStatus, setCorrectionStatus] = useState<CorrectionStatus>('Pendiente');
+  const [editOpen, setEditOpen] = useState(false);
 
   if (!job) {
     return (
@@ -71,12 +81,31 @@ const JobDetail = () => {
             <span className="px-3 py-1 rounded-full text-[10px] font-bold bg-slate-100 text-slate-500 border border-slate-200 uppercase">{job.category}</span>
           </div>
         </div>
-        <div className="text-left md:text-right shrink-0">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Valor total</p>
-          <p className="text-2xl sm:text-3xl font-bold text-primary">{formatCurrency(job.agreedValue)}</p>
-          <p className="text-xs text-slate-400">Pagado: {formatCurrency(job.paidValue)}</p>
+        <div className="flex items-start gap-4 shrink-0">
+          <div className="text-left md:text-right">
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Valor total</p>
+            <p className="text-2xl sm:text-3xl font-bold text-primary">{formatCurrency(job.agreedValue)}</p>
+            <p className="text-xs text-slate-400">Pagado: {formatCurrency(job.paidValue)}</p>
+          </div>
+          {canEdit && (
+            <button
+              type="button"
+              onClick={() => setEditOpen(true)}
+              className="h-11 px-4 bg-white border border-outline-variant text-slate-600 hover:border-primary hover:text-primary rounded-xl font-bold text-sm flex items-center gap-2 transition-colors shrink-0"
+            >
+              <Icons.Edit className="w-4 h-4" />
+              Editar
+            </button>
+          )}
         </div>
       </div>
+
+      <JobFormModal
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+        job={job}
+        onSuccess={() => setEditOpen(false)}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         <div className="lg:col-span-2 space-y-6">
@@ -92,8 +121,13 @@ const JobDetail = () => {
                 <p className="text-xs text-slate-400">{client?.phone}</p>
               </div>
               <div className="space-y-1">
-                <label className="text-[10px] font-bold text-slate-400 uppercase">Paciente / referencia</label>
+                <label className="text-[10px] font-bold text-slate-400 uppercase">Nombre de paciente</label>
                 <p className="font-bold text-slate-700">{job.patientReference}</p>
+                {(job.patientPhone || job.patientAge || job.patientSex) && (
+                  <p className="text-xs text-slate-400">
+                    {[job.patientPhone, job.patientAge ? `${job.patientAge} años` : undefined, job.patientSex].filter(Boolean).join(' · ')}
+                  </p>
+                )}
               </div>
               <div className="space-y-1">
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Fecha ingreso</label>
@@ -117,6 +151,28 @@ const JobDetail = () => {
                 <label className="text-[10px] font-bold text-slate-400 uppercase">Saldo pendiente</label>
                 <p className="text-sm font-bold text-red-500">{formatCurrency(Math.max(job.agreedValue - job.paidValue, 0))}</p>
               </div>
+              {requestedLab && (
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Laboratorio</label>
+                  <p className="font-bold text-slate-700">{requestedLab.name}</p>
+                  {requestedService && <p className="text-xs text-slate-400">{requestedService.name}</p>}
+                </div>
+              )}
+              {job.material && (
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Material</label>
+                  <p className="text-sm font-medium text-slate-600">{job.material}</p>
+                </div>
+              )}
+              {job.color && (
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-slate-400 uppercase">Color (VITA 3D-Master)</label>
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg border border-slate-200 shrink-0" style={{ backgroundColor: getVitaShadeHex(job.color) ?? '#f1f5f9' }} aria-hidden="true" />
+                    <p className="text-sm font-medium text-slate-600">{job.color}</p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="pt-4 border-t border-slate-50 space-y-4">
               <div>
@@ -135,6 +191,16 @@ const JobDetail = () => {
               )}
             </div>
           </div>
+
+          {job.selectedTeeth && job.selectedTeeth.length > 0 && (
+            <div className="bg-white border border-outline-variant rounded-2xl p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex items-center gap-2 border-b border-slate-50 pb-4">
+                <Icons.Tag className="w-5 h-5 text-primary" />
+                <h3 className="font-bold text-lg">Odontograma</h3>
+              </div>
+              <Odontogram selectedTeeth={job.selectedTeeth} readOnly />
+            </div>
+          )}
 
           <div className="bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm">
             <div className="p-5 sm:p-6 border-b border-slate-50 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-slate-50/50">
@@ -158,10 +224,10 @@ const JobDetail = () => {
                 className="h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm outline-none focus:ring-2 focus:ring-primary focus:bg-white"
               />
               <div className="flex gap-2">
-                <select value={correctionStatus} onChange={(event) => setCorrectionStatus(event.target.value as CorrectionStatus)} className="min-w-0 flex-1 h-11 bg-slate-50 border border-slate-100 rounded-xl px-3 text-sm outline-none focus:ring-2 focus:ring-primary focus:bg-white">
+                <Select value={correctionStatus} onChange={(event) => setCorrectionStatus(event.target.value as CorrectionStatus)} className="w-full h-11 text-sm" wrapperClassName="min-w-0 flex-1">
                   <option>Pendiente</option>
                   <option>Solucionada</option>
-                </select>
+                </Select>
                 <button className="h-11 px-4 bg-primary text-white rounded-xl font-bold text-sm active:scale-95 transition-all">Agregar</button>
               </div>
             </form>

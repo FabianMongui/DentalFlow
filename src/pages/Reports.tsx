@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { StatsCard, StatusBadge, formatCurrency } from '../components/Common';
 import { Icons } from '../components/Icons';
+import { Select } from '../components/Select';
 import { useDentalFlow } from '../context/DentalFlowContext';
 import type { JobStatus, WorkCategory } from '../types';
 
@@ -14,6 +15,7 @@ const Reports = () => {
   const pending = jobs.reduce((total, job) => total + Math.max(job.agreedValue - job.paidValue, 0), 0);
   const delivered = jobs.filter((job) => job.status === 'Entregado').length;
   const corrections = jobs.reduce((total, job) => total + job.corrections.length, 0);
+  const [categoryFilter, setCategoryFilter] = useState('Todas las categorías');
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="space-y-6 sm:space-y-8">
@@ -24,10 +26,10 @@ const Reports = () => {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full md:w-auto">
           <input type="month" className="h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm outline-none focus:ring-2 focus:ring-primary" />
-          <select className="h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm outline-none focus:ring-2 focus:ring-primary">
+          <Select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)} className="w-full h-11 text-sm">
             <option>Todas las categorías</option>
             {categories.map((category) => <option key={category}>{category}</option>)}
-          </select>
+          </Select>
         </div>
       </section>
 

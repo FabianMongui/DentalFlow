@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Icons } from '../components/Icons';
 import { Modal } from '../components/Modal';
+import { Select } from '../components/Select';
 import { EmptyState, formatCurrency, initials } from '../components/Common';
 import { useDentalFlow, type LabDirectoryEntry } from '../context/DentalFlowContext';
+import { useJobFormModal } from '../context/JobFormModalContext';
 import type { WorkCategory } from '../types';
 
 const categories: Array<'Todas' | WorkCategory> = ['Todas', 'Laboratorio', 'Grill', 'Otro'];
@@ -16,8 +17,8 @@ const priceRange = (lab: LabDirectoryEntry) => {
 };
 
 const Laboratories = () => {
-  const navigate = useNavigate();
   const { labDirectory } = useDentalFlow();
+  const { openCreateJob } = useJobFormModal();
   const [query, setQuery] = useState('');
   const [labId, setLabId] = useState('');
   const [category, setCategory] = useState<'Todas' | WorkCategory>('Todas');
@@ -58,7 +59,8 @@ const Laboratories = () => {
   };
 
   const handleRequestJob = (lab: LabDirectoryEntry) => {
-    navigate(`/trabajos/nuevo?labId=${lab.id}`);
+    setSelectedLab(null);
+    openCreateJob({ labId: lab.id });
   };
 
   return (
@@ -83,23 +85,23 @@ const Laboratories = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Laboratorio</label>
-            <select value={labId} onChange={(event) => setLabId(event.target.value)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={labId} onChange={(event) => setLabId(event.target.value)} className="w-full h-11 text-sm">
               <option value="">Todos</option>
               {labDirectory.map((lab) => <option key={lab.id} value={lab.id}>{lab.name}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Tipo de servicio</label>
-            <select value={category} onChange={(event) => setCategory(event.target.value as 'Todas' | WorkCategory)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={category} onChange={(event) => setCategory(event.target.value as 'Todas' | WorkCategory)} className="w-full h-11 text-sm">
               {categories.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Ciudad</label>
-            <select value={city} onChange={(event) => setCity(event.target.value)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={city} onChange={(event) => setCity(event.target.value)} className="w-full h-11 text-sm">
               <option value="">Todas</option>
               {cities.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Rango de precio (COP)</label>

@@ -25,3 +25,33 @@ export const confirmDelete = async (title: string, text?: string) => {
   });
   return result.isConfirmed;
 };
+
+export const confirmReject = async (title: string, text?: string) => {
+  const result = await Swal.fire({
+    icon: 'warning',
+    title,
+    text,
+    showCancelButton: true,
+    confirmButtonText: 'Rechazar',
+    cancelButtonText: 'Cancelar',
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#64748b',
+    reverseButtons: true,
+  });
+  return result.isConfirmed;
+};
+
+export const confirmDiscard = async () => {
+  const result = await Swal.fire({
+    icon: 'warning',
+    title: '¿Descartar cambios?',
+    text: 'Tienes cambios sin guardar en este trabajo.',
+    showCancelButton: true,
+    confirmButtonText: 'Descartar',
+    cancelButtonText: 'Seguir editando',
+    confirmButtonColor: '#dc2626',
+    cancelButtonColor: '#0058be',
+    reverseButtons: true,
+  });
+  return result.isConfirmed;
+};

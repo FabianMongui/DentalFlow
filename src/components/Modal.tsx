@@ -2,27 +2,39 @@ import React, { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { Icons } from './Icons';
 
+type ModalSize = 'md' | 'lg';
+
 interface ModalProps {
   open: boolean;
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
+  size?: ModalSize;
 }
 
-export const Modal = ({ open, onClose, title, children }: ModalProps) => {
+const sizeClasses: Record<ModalSize, string> = {
+  md: 'max-w-lg',
+  lg: 'max-w-4xl',
+};
+
+export const Modal = ({ open, onClose, title, children, size = 'md' }: ModalProps) => {
   const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
 
     const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (target.closest('.swal2-container')) return;
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose();
+      if (event.key !== 'Escape') return;
+      if (document.querySelector('.swal2-container')) return;
+      onClose();
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -50,7 +62,7 @@ export const Modal = ({ open, onClose, title, children }: ModalProps) => {
             transition={{ duration: 0.18 }}
             role="dialog"
             aria-modal="true"
-            className="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] overflow-y-auto"
+            className={`bg-white rounded-2xl shadow-2xl w-full ${sizeClasses[size]} max-h-[90vh] overflow-y-auto`}
           >
             <div className="flex items-center justify-between p-5 sm:p-6 border-b border-slate-100 sticky top-0 bg-white z-10">
               {title && <h3 className="text-lg font-bold text-slate-800">{title}</h3>}

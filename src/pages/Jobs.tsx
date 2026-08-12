@@ -2,17 +2,40 @@ import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Icons } from '../components/Icons';
 import { Tooltip } from '../components/Tooltip';
+import { Select } from '../components/Select';
+import { DatePicker } from '../components/DatePicker';
 import { EmptyState, PaymentBadge, StatusBadge, formatCurrency, formatDate } from '../components/Common';
 import { motion } from 'motion/react';
+import { useAuth } from '../context/AuthContext';
 import { useDentalFlow } from '../context/DentalFlowContext';
-import type { JobStatus, PaymentStatus, WorkCategory } from '../types';
+import { useJobFormModal } from '../context/JobFormModalContext';
+import { confirmReject, notifySuccess } from '../lib/notify';
+import type { Job, JobStatus, PaymentStatus, WorkCategory } from '../types';
 
 const categories: Array<'Todas' | WorkCategory> = ['Todas', 'Laboratorio', 'Grill', 'Otro'];
 const statuses: Array<'Todos' | JobStatus> = ['Todos', 'Recibido', 'En proceso', 'En corrección', 'Finalizado', 'Entregado', 'Cancelado'];
 const payments: Array<'Todos' | PaymentStatus> = ['Todos', 'Pendiente', 'Parcial', 'Pagado'];
 
 const Jobs = () => {
-  const { jobs, getClientById, updateJobStatus } = useDentalFlow();
+  const { currentUser } = useAuth();
+  const { jobs, getClientById, updateJobStatus, respondToJobRequest } = useDentalFlow();
+  const { openCreateJob } = useJobFormModal();
+
+  const isPendingRequestForMe = (job: Job) => (
+    job.requestedLabId === currentUser?.clientId && (!job.labResponse || job.labResponse === 'Pendiente')
+  );
+
+  const handleAccept = (jobId: string) => {
+    respondToJobRequest(jobId, 'Aceptado');
+    notifySuccess('Trabajo aceptado, pasa a producción.');
+  };
+
+  const handleReject = async (jobId: string, jobType: string) => {
+    const confirmed = await confirmReject('¿Rechazar esta solicitud?', `"${jobType}" quedará marcado como cancelado.`);
+    if (!confirmed) return;
+    respondToJobRequest(jobId, 'Rechazado');
+    notifySuccess('Trabajo rechazado.');
+  };
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<'Todas' | WorkCategory>('Todas');
   const [status, setStatus] = useState<'Todos' | JobStatus>('Todos');
@@ -61,34 +84,38 @@ const Jobs = () => {
               className="w-full h-11 pl-12 pr-4 bg-slate-50 border border-slate-100 rounded-xl outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all text-sm"
             />
           </div>
-          <Link to="/trabajos/nuevo" className="h-11 px-5 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+          <button
+            type="button"
+            onClick={() => openCreateJob()}
+            className="h-11 px-5 bg-primary text-white font-bold rounded-xl shadow-lg shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+          >
             <Icons.Plus className="w-5 h-5" />
             Crear trabajo
-          </Link>
+          </button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Categoría</label>
-            <select value={category} onChange={(event) => setCategory(event.target.value as 'Todas' | WorkCategory)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={category} onChange={(event) => setCategory(event.target.value as 'Todas' | WorkCategory)} className="w-full h-11 text-sm">
               {categories.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Estado</label>
-            <select value={status} onChange={(event) => setStatus(event.target.value as 'Todos' | JobStatus)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={status} onChange={(event) => setStatus(event.target.value as 'Todos' | JobStatus)} className="w-full h-11 text-sm">
               {statuses.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Pago</label>
-            <select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value as 'Todos' | PaymentStatus)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={paymentStatus} onChange={(event) => setPaymentStatus(event.target.value as 'Todos' | PaymentStatus)} className="w-full h-11 text-sm">
               {payments.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Fecha entrega</label>
-            <input value={deliveryDate} onChange={(event) => setDeliveryDate(event.target.value)} type="date" className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white outline-none" />
+            <DatePicker value={deliveryDate} onChange={setDeliveryDate} className="w-full h-11 text-sm" />
           </div>
         </div>
       </div>
@@ -120,10 +147,10 @@ const Jobs = () => {
                         <p className="text-[10px] uppercase font-bold text-slate-400">Paciente/ref.</p>
                         <p className="font-medium text-slate-600 truncate">{job.patientReference}</p>
                       </div>
-                      <div>
+                      {/* <div>
                         <p className="text-[10px] uppercase font-bold text-slate-400">Entrega</p>
                         <p className="font-medium text-slate-600">{formatDate(job.estimatedDeliveryDate)}</p>
-                      </div>
+                      </div> */}
                       <div>
                         <p className="text-[10px] uppercase font-bold text-slate-400">Valor</p>
                         <p className="font-bold text-primary">{formatCurrency(job.agreedValue)}</p>
@@ -135,11 +162,36 @@ const Jobs = () => {
                       <StatusBadge status={job.status} />
                       <PaymentBadge status={job.paymentStatus} />
                     </div>
-                    {job.status !== 'Entregado' && job.status !== 'Cancelado' && (
-                      <button onClick={() => updateJobStatus(job.id, 'Entregado', 'Marcado desde listado móvil.')} className="text-xs font-bold text-secondary bg-secondary/10 px-3 py-2 rounded-xl active:scale-95">
-                        Entregar
-                      </button>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {isPendingRequestForMe(job) ? (
+                        <>
+                          <Tooltip content="Rechazar">
+                            <button
+                              type="button"
+                              onClick={() => handleReject(job.id, job.jobType)}
+                              aria-label="Rechazar"
+                              className="h-9 w-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors"
+                            >
+                              <Icons.Ban className="w-4 h-4" />
+                            </button>
+                          </Tooltip>
+                          <Tooltip content="Aceptar">
+                            <button
+                              type="button"
+                              onClick={() => handleAccept(job.id)}
+                              aria-label="Aceptar"
+                              className="h-9 w-9 rounded-xl bg-secondary/10 text-secondary hover:bg-secondary/20 flex items-center justify-center transition-colors"
+                            >
+                              <Icons.Check className="w-4 h-4" />
+                            </button>
+                          </Tooltip>
+                        </>
+                      ) : job.status !== 'Entregado' && job.status !== 'Cancelado' && (
+                        <button onClick={() => updateJobStatus(job.id, 'Entregado', 'Marcado desde listado móvil.')} className="text-xs font-bold text-secondary bg-secondary/10 px-3 py-2 rounded-xl active:scale-95">
+                          Entregar
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </article>
               );
@@ -153,7 +205,7 @@ const Jobs = () => {
                   <th className="px-6 py-4">Código</th>
                   <th className="px-6 py-4">Tipo / Categoría</th>
                   <th className="px-6 py-4">Cliente / Paciente</th>
-                  <th className="px-6 py-4">Entrega</th>
+                  {/* <th className="px-6 py-4">Entrega</th> */}
                   <th className="px-6 py-4 text-center">Estado</th>
                   <th className="px-6 py-4 text-center">Pago</th>
                   <th className="px-6 py-4 text-right">Valor</th>
@@ -178,16 +230,42 @@ const Jobs = () => {
                           <span className="text-[11px] text-slate-400 italic">Pte/ref: {job.patientReference}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-5 text-sm text-slate-500 whitespace-nowrap">{formatDate(job.estimatedDeliveryDate)}</td>
+                      {/* <td className="px-6 py-5 text-sm text-slate-500 whitespace-nowrap">{formatDate(job.estimatedDeliveryDate)}</td> */}
                       <td className="px-6 py-5 text-center"><StatusBadge status={job.status} /></td>
                       <td className="px-6 py-5 text-center"><PaymentBadge status={job.paymentStatus} /></td>
                       <td className="px-6 py-5 text-right font-bold text-slate-800 whitespace-nowrap">{formatCurrency(job.agreedValue)}</td>
-                      <td className="px-6 py-5 text-right">
-                        <Tooltip content="Ver detalle">
-                          <Link to={`/trabajos/${job.id}`} aria-label="Ver detalle" className="inline-flex p-2 hover:bg-slate-100 rounded-full text-primary transition-colors">
-                            <Icons.Eye className="w-5 h-5" />
-                          </Link>
-                        </Tooltip>
+                      <td className="px-6 py-5 text-left">
+                        <div className="flex items-center justify-start gap-2">
+                          <Tooltip content="Ver detalle">
+                            <Link to={`/trabajos/${job.id}`} aria-label="Ver detalle" className="inline-flex p-2 hover:bg-slate-100 rounded-full text-primary transition-colors">
+                              <Icons.Eye className="w-5 h-5" />
+                            </Link>
+                          </Tooltip>
+                          {isPendingRequestForMe(job) && (
+                            <>
+                              <Tooltip content="Rechazar">
+                                <button
+                                  type="button"
+                                  onClick={() => handleReject(job.id, job.jobType)}
+                                  aria-label="Rechazar"
+                                  className="h-9 w-9 rounded-xl bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center transition-colors"
+                                >
+                                  <Icons.Ban className="w-4 h-4" />
+                                </button>
+                              </Tooltip>
+                              <Tooltip content="Aceptar">
+                                <button
+                                  type="button"
+                                  onClick={() => handleAccept(job.id)}
+                                  aria-label="Aceptar"
+                                  className="h-9 w-9 rounded-xl bg-secondary/10 text-secondary hover:bg-secondary/20 flex items-center justify-center transition-colors"
+                                >
+                                  <Icons.Check className="w-4 h-4" />
+                                </button>
+                              </Tooltip>
+                            </>
+                          )}                          
+                        </div>
                       </td>
                     </tr>
                   );

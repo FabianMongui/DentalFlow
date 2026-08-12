@@ -6,10 +6,12 @@ import { Icons } from '../components/Icons';
 import { motion } from 'motion/react';
 import { useDentalFlow } from '../context/DentalFlowContext';
 import { useAuth } from '../context/AuthContext';
+import { useJobFormModal } from '../context/JobFormModalContext';
 
 const Dashboard = () => {
   const { jobs, getClientById } = useDentalFlow();
   const { currentUser } = useAuth();
+  const { openCreateJob } = useJobFormModal();
   const displayName = currentUser?.role === 'super_admin' ? currentUser.name.split(' ')[0] : currentUser?.name ?? '';
   const currentMonth = new Date().getMonth();
   const currentYear = new Date().getFullYear();
@@ -44,10 +46,14 @@ const Dashboard = () => {
           <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">Buen día, {displayName}</h2>
           <p className="text-sm sm:text-base text-slate-500">Resumen rápido de trabajos, entregas y pagos.</p>
         </div>
-        <Link to="/trabajos/nuevo" className="lg:hidden h-12 px-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-all">
+        <button
+          type="button"
+          onClick={() => openCreateJob()}
+          className="lg:hidden h-12 px-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
+        >
           <Icons.Plus className="w-5 h-5" />
           Crear trabajo
-        </Link>
+        </button>
       </section>
 
       <section className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">

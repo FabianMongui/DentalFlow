@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Icons } from './Icons';
 import { useAuth } from '../context/AuthContext';
 import { useDentalFlow } from '../context/DentalFlowContext';
+import { useJobFormModal } from '../context/JobFormModalContext';
 import type { JobStatus, PaymentStatus } from '../types';
 
 export const initials = (name: string) => name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
@@ -62,6 +63,7 @@ export const Header = ({ title, showCreate = true }: { title: string, showCreate
   const navigate = useNavigate();
   const { currentUser, logout } = useAuth();
   const { getClientById } = useDentalFlow();
+  const { openCreateJob } = useJobFormModal();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -96,10 +98,14 @@ export const Header = ({ title, showCreate = true }: { title: string, showCreate
       </div>
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {showCreate && (
-          <Link to="/trabajos/nuevo" className="bg-primary text-white px-3 sm:px-4 py-2 rounded-xl font-bold hover:opacity-90 transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-primary/20">
+          <button
+            type="button"
+            onClick={() => openCreateJob()}
+            className="bg-primary text-white px-3 sm:px-4 py-2 rounded-xl font-bold hover:opacity-90 transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-primary/20"
+          >
             <Icons.Plus className="w-5 h-5" />
             <span className="hidden sm:inline">Crear trabajo</span>
-          </Link>
+          </button>
         )}
         <div className="hidden sm:flex flex-col items-end leading-tight">
           <span className="text-xs font-bold text-slate-700">{displayName}</span>

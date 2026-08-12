@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { Icons } from '../components/Icons';
 import { StatsCard, formatCurrency, initials } from '../components/Common';
 import { Modal } from '../components/Modal';
+import { Select } from '../components/Select';
 import { Tooltip } from '../components/Tooltip';
 import { motion } from 'motion/react';
 import { useDentalFlow } from '../context/DentalFlowContext';
@@ -157,25 +158,25 @@ const Clients = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Tipo</label>
-            <select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as 'Todos' | ClientType)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={typeFilter} onChange={(event) => setTypeFilter(event.target.value as 'Todos' | ClientType)} className="w-full h-11 text-sm">
               <option value="Todos">Todos</option>
               {clientTypes.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Ciudad</label>
-            <select value={cityFilter} onChange={(event) => setCityFilter(event.target.value)} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={cityFilter} onChange={(event) => setCityFilter(event.target.value)} className="w-full h-11 text-sm">
               <option value="">Todas</option>
               {cities.map((option) => <option key={option}>{option}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Estado</label>
-            <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'Todos' | 'Activa' | 'Inactiva')} className="w-full h-11 bg-slate-50 border border-slate-100 rounded-xl px-4 text-sm focus:ring-2 focus:ring-primary focus:bg-white transition-all outline-none">
+            <Select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'Todos' | 'Activa' | 'Inactiva')} className="w-full h-11 text-sm">
               <option value="Todos">Todos</option>
               <option value="Activa">Activa</option>
               <option value="Inactiva">Inactiva</option>
-            </select>
+            </Select>
           </div>
         </div>
       </div>
@@ -196,9 +197,9 @@ const Clients = () => {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Tipo</label>
-              <select value={form.type} onChange={(event) => setField('type', event.target.value as ClientType)} className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+              <Select value={form.type} onChange={(event) => setField('type', event.target.value as ClientType)} className="w-full h-12">
                 {clientTypes.map((option) => <option key={option}>{option}</option>)}
-              </select>
+              </Select>
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Teléfono</label>
@@ -218,9 +219,9 @@ const Clients = () => {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Plan</label>
-              <select value={form.plan} onChange={(event) => setField('plan', event.target.value as ClientPlan)} className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+              <Select value={form.plan} onChange={(event) => setField('plan', event.target.value as ClientPlan)} className="w-full h-12">
                 {clientPlans.map((option) => <option key={option}>{option}</option>)}
-              </select>
+              </Select>
             </div>
           </div>
 

@@ -2,11 +2,13 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Icons } from '../components/Icons';
 import { Modal } from '../components/Modal';
+import { Select } from '../components/Select';
 import { Tooltip } from '../components/Tooltip';
 import { formatCurrency } from '../components/Common';
 import { useAuth } from '../context/AuthContext';
 import { useDentalFlow } from '../context/DentalFlowContext';
 import { notifySuccess, confirmDelete } from '../lib/notify';
+import { materialOptions } from '../lib/catalogOptions';
 import type { ServiceInput, WorkCategory } from '../types';
 
 const categories: WorkCategory[] = ['Laboratorio', 'Grill', 'Otro'];
@@ -14,6 +16,7 @@ const categories: WorkCategory[] = ['Laboratorio', 'Grill', 'Otro'];
 const emptyForm: ServiceInput = {
   name: '',
   category: 'Laboratorio',
+  material: materialOptions[0],
   price: 0,
   turnaroundDays: 7,
   active: true,
@@ -58,6 +61,7 @@ const Services = () => {
     setForm({
       name: service.name,
       category: service.category,
+      material: service.material,
       price: service.price,
       turnaroundDays: service.turnaroundDays,
       active: service.active,
@@ -154,9 +158,9 @@ const Services = () => {
             {isSuperAdmin && mode === 'create' && (
               <div className="space-y-1 md:col-span-2">
                 <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Laboratorio</label>
-                <select value={targetClientId} onChange={(event) => setTargetClientId(event.target.value)} className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+                <Select value={targetClientId} onChange={(event) => setTargetClientId(event.target.value)} className="w-full h-12">
                   {labs.map((lab) => <option key={lab.id} value={lab.id}>{lab.name}</option>)}
-                </select>
+                </Select>
               </div>
             )}
             {isSuperAdmin && mode === 'edit' && (
@@ -171,9 +175,15 @@ const Services = () => {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Categoría</label>
-              <select value={form.category} onChange={(event) => setField('category', event.target.value as WorkCategory)} className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+              <Select value={form.category} onChange={(event) => setField('category', event.target.value as WorkCategory)} className="w-full h-12">
                 {categories.map((option) => <option key={option}>{option}</option>)}
-              </select>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Material</label>
+              <Select value={form.material} onChange={(event) => setField('material', event.target.value)} className="w-full h-12">
+                {materialOptions.map((option) => <option key={option}>{option}</option>)}
+              </Select>
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Días de entrega</label>
@@ -232,7 +242,7 @@ const Services = () => {
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <h3 className="font-bold text-slate-700 truncate">{service.name}</h3>
-                    <p className="text-xs text-slate-400 font-medium">{service.category} · {service.turnaroundDays} día(s)</p>
+                    <p className="text-xs text-slate-400 font-medium">{service.category} · {service.material} · {service.turnaroundDays} día(s)</p>
                     {isSuperAdmin && <p className="text-xs text-primary font-bold mt-1">{getClientById(service.clientId)?.name}</p>}
                   </div>
                   <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase shrink-0 ${service.active ? 'bg-secondary/10 text-secondary' : 'bg-red-50 text-red-500'}`}>
@@ -275,6 +285,7 @@ const Services = () => {
                 <tr className="bg-slate-50 text-[10px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-100">
                   <th className="px-6 py-4">Servicio</th>
                   <th className="px-6 py-4">Categoría</th>
+                  <th className="px-6 py-4">Material</th>
                   {isSuperAdmin && <th className="px-6 py-4">Laboratorio</th>}
                   <th className="px-6 py-4 text-center">Entrega</th>
                   <th className="px-6 py-4 text-right">Precio</th>
@@ -294,6 +305,7 @@ const Services = () => {
                         {service.category}
                       </span>
                     </td>
+                    <td className="px-6 py-5 text-sm font-medium text-slate-600">{service.material}</td>
                     {isSuperAdmin && (
                       <td className="px-6 py-5 text-sm font-medium text-slate-600">{getClientById(service.clientId)?.name}</td>
                     )}

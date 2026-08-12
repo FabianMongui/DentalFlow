@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { mockClients, mockJobs, mockServices } from '../data/mockData';
 import { useAuth } from './AuthContext';
-import type { Client, Correction, Job, JobInput, JobStatus, PaymentStatus, Service, ServiceInput } from '../types';
+import type { Client, Correction, Job, JobInput, JobStatus, LabResponse, PaymentStatus, Service, ServiceInput } from '../types';
 
 export type LabDirectoryEntry = Client & { services: Service[] };
 
@@ -14,7 +14,9 @@ interface DentalFlowContextValue {
   getClientById: (id?: string) => Client | undefined;
   getPublicLabById: (id?: string) => LabDirectoryEntry | undefined;
   createJob: (input: JobInput) => Job;
+  updateJob: (jobId: string, patch: JobInput) => void;
   updateJobStatus: (jobId: string, status: JobStatus, comment?: string) => void;
+  respondToJobRequest: (jobId: string, response: Extract<LabResponse, 'Aceptado' | 'Rechazado'>) => void;
   updatePaymentStatus: (jobId: string, paymentStatus: PaymentStatus, paidValue?: number) => void;
   addCorrection: (jobId: string, correction: Omit<Correction, 'id'>) => void;
   createClientAccount: (input: Omit<Client, 'id'>) => Client;
@@ -28,7 +30,7 @@ const DentalFlowContext = createContext<DentalFlowContextValue | null>(null);
 
 const JOBS_KEY = 'dentalflow.jobs.v1';
 const CLIENTS_KEY = 'dentalflow.clients.v1';
-const SERVICES_KEY = 'dentalflow.services.v1';
+const SERVICES_KEY = 'dentalflow.services.v2';
 
 const safeRead = <T,>(key: string, fallback: T): T => {
   if (typeof window === 'undefined') return fallback;
@@ -70,7 +72,7 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
   const jobs = useMemo(() => {
     if (!currentUser) return [];
     if (currentUser.role === 'super_admin') return allJobs;
-    return allJobs.filter((job) => job.clientId === currentUser.clientId);
+    return allJobs.filter((job) => job.clientId === currentUser.clientId || job.requestedLabId === currentUser.clientId);
   }, [allJobs, currentUser]);
 
   const services = useMemo(() => {
@@ -107,6 +109,7 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
         code: `DF-${nextNumber}`,
         paidValue: Number(input.paidValue || 0),
         agreedValue: Number(input.agreedValue || 0),
+        labResponse: input.requestedLabId ? 'Pendiente' : undefined,
         corrections: [],
         statusHistory: [
           { id: makeId('history'), status: input.status, date: today(), comment: 'Trabajo creado.' },
@@ -117,6 +120,21 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
 
       setAllJobs((current) => [job, ...current]);
       return job;
+    },
+    updateJob: (jobId: string, patch: JobInput) => {
+      setAllJobs((current) => current.map((job) => {
+        if (job.id !== jobId) return job;
+        if (currentUser?.role === 'client_admin' && job.clientId !== currentUser.clientId) return job;
+        const clientId = currentUser?.role === 'client_admin' ? currentUser.clientId ?? patch.clientId : patch.clientId;
+        return {
+          ...job,
+          ...patch,
+          clientId,
+          paidValue: Number(patch.paidValue || 0),
+          agreedValue: Number(patch.agreedValue || 0),
+          updatedAt: new Date().toISOString(),
+        };
+      }));
     },
     updateJobStatus: (jobId: string, status: JobStatus, comment?: string) => {
       setAllJobs((current) => current.map((job) => {
@@ -131,6 +149,24 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
           statusHistory: [
             ...job.statusHistory,
             { id: makeId('history'), status, date: today(), comment },
+          ],
+        };
+      }));
+    },
+    respondToJobRequest: (jobId: string, response: Extract<LabResponse, 'Aceptado' | 'Rechazado'>) => {
+      setAllJobs((current) => current.map((job) => {
+        if (job.id !== jobId) return job;
+        if (currentUser?.role === 'client_admin' && job.requestedLabId !== currentUser.clientId) return job;
+        const nextStatus: JobStatus = response === 'Aceptado' ? 'En proceso' : 'Cancelado';
+        const comment = response === 'Aceptado' ? 'Laboratorio aceptó el trabajo.' : 'Laboratorio rechazó el trabajo.';
+        return {
+          ...job,
+          labResponse: response,
+          status: nextStatus,
+          updatedAt: new Date().toISOString(),
+          statusHistory: [
+            ...job.statusHistory,
+            { id: makeId('history'), status: nextStatus, date: today(), comment },
           ],
         };
       }));

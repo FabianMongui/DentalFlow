@@ -5,6 +5,8 @@ export type ClientType = 'Cliente individual' | 'Laboratorio';
 export type CorrectionStatus = 'Pendiente' | 'Solucionada';
 export type ClientPlan = 'Básico' | 'Pro' | 'Premium';
 export type UserRole = 'super_admin' | 'client_admin';
+export type PatientSex = 'Femenino' | 'Masculino' | 'Otro';
+export type LabResponse = 'Pendiente' | 'Aceptado' | 'Rechazado';
 
 export interface Client {
   id: string;
@@ -23,6 +25,7 @@ export interface Service {
   clientId: string;
   name: string;
   category: WorkCategory;
+  material: string;
   price: number;
   turnaroundDays: number;
   active: boolean;
@@ -60,6 +63,9 @@ export interface Job {
   jobType: string;
   clientId: string;
   patientReference: string;
+  patientPhone?: string;
+  patientAge?: number;
+  patientSex?: PatientSex;
   description: string;
   entryDate: string;
   estimatedDeliveryDate: string;
@@ -69,11 +75,16 @@ export interface Job {
   agreedValue: number;
   paidValue: number;
   observations?: string;
+  material?: string;
+  color?: string;
+  selectedTeeth?: string[];
   corrections: Correction[];
   statusHistory: StatusHistoryItem[];
   createdAt: string;
   updatedAt: string;
   requestedLabId?: string;
+  serviceId?: string;
+  labResponse?: LabResponse;
 }
 
 export interface JobInput {
@@ -81,6 +92,9 @@ export interface JobInput {
   jobType: string;
   clientId: string;
   patientReference: string;
+  patientPhone?: string;
+  patientAge?: number;
+  patientSex?: PatientSex;
   description: string;
   entryDate: string;
   estimatedDeliveryDate: string;
@@ -89,5 +103,9 @@ export interface JobInput {
   agreedValue: number;
   paidValue: number;
   observations?: string;
+  material?: string;
+  color?: string;
+  selectedTeeth?: string[];
   requestedLabId?: string;
+  serviceId?: string;
 }

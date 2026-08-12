@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { Icons } from '../components/Icons';
 import { Tooltip } from '../components/Tooltip';
+import { Select } from '../components/Select';
 import { initials } from '../components/Common';
 import { useDentalFlow } from '../context/DentalFlowContext';
 import type { Client, ClientPlan, ClientType } from '../types';
@@ -139,9 +140,9 @@ const SuperAdmin = () => {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Tipo</label>
-              <select value={form.type} onChange={(event) => setField('type', event.target.value as ClientType)} className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+              <Select value={form.type} onChange={(event) => setField('type', event.target.value as ClientType)} className="w-full h-12">
                 {clientTypes.map((option) => <option key={option}>{option}</option>)}
-              </select>
+              </Select>
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Teléfono</label>
@@ -161,9 +162,9 @@ const SuperAdmin = () => {
             </div>
             <div className="space-y-1">
               <label className="text-[10px] font-bold text-slate-400 uppercase ml-1">Plan</label>
-              <select value={form.plan} onChange={(event) => setField('plan', event.target.value as ClientPlan)} className="w-full h-12 bg-slate-50 border border-slate-100 rounded-xl px-4 outline-none focus:ring-2 focus:ring-primary focus:bg-white transition-all">
+              <Select value={form.plan} onChange={(event) => setField('plan', event.target.value as ClientPlan)} className="w-full h-12">
                 {clientPlans.map((option) => <option key={option}>{option}</option>)}
-              </select>
+              </Select>
             </div>
           </div>
 

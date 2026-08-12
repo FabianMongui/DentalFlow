@@ -34,7 +34,8 @@ import {
   X,
   Tag,
   Wrench,
-  Trash2
+  Trash2,
+  ChevronDown
 } from 'lucide-react';
 
 export const Icons = {
@@ -73,5 +74,6 @@ export const Icons = {
   Close: X,
   Tag,
   Servicios: Wrench,
-  Delete: Trash2
+  Delete: Trash2,
+  ChevronDown
 };
