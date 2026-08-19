@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { mockClients, mockJobs, mockServices } from '../data/mockData';
+import { mockAppointments, mockClients, mockJobs, mockServices } from '../data/mockData';
 import { useAuth } from './AuthContext';
-import type { Client, Correction, Job, JobInput, JobStatus, LabResponse, PaymentStatus, Service, ServiceInput } from '../types';
+import type { Appointment, AppointmentInput, Client, Correction, Job, JobInput, JobStatus, LabResponse, PaymentStatus, Service, ServiceInput } from '../types';
 
 export type LabDirectoryEntry = Client & { services: Service[] };
 
@@ -9,6 +9,7 @@ interface DentalFlowContextValue {
   jobs: Job[];
   clients: Client[];
   services: Service[];
+  appointments: Appointment[];
   labDirectory: LabDirectoryEntry[];
   getJobById: (id?: string) => Job | undefined;
   getClientById: (id?: string) => Client | undefined;
@@ -24,6 +25,9 @@ interface DentalFlowContextValue {
   createService: (input: ServiceInput, targetClientId?: string) => Service | undefined;
   updateService: (serviceId: string, patch: Partial<ServiceInput>) => void;
   deleteService: (serviceId: string) => void;
+  createAppointment: (input: AppointmentInput) => Appointment;
+  updateAppointment: (appointmentId: string, patch: AppointmentInput) => void;
+  deleteAppointment: (appointmentId: string) => void;
 }
 
 const DentalFlowContext = createContext<DentalFlowContextValue | null>(null);
@@ -31,6 +35,7 @@ const DentalFlowContext = createContext<DentalFlowContextValue | null>(null);
 const JOBS_KEY = 'dentalflow.jobs.v1';
 const CLIENTS_KEY = 'dentalflow.clients.v1';
 const SERVICES_KEY = 'dentalflow.services.v2';
+const APPOINTMENTS_KEY = 'dentalflow.appointments.v1';
 
 const safeRead = <T,>(key: string, fallback: T): T => {
   if (typeof window === 'undefined') return fallback;
@@ -51,6 +56,7 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
   const [allJobs, setAllJobs] = useState<Job[]>(() => safeRead(JOBS_KEY, mockJobs));
   const [allClients, setAllClients] = useState<Client[]>(() => safeRead(CLIENTS_KEY, mockClients));
   const [allServices, setAllServices] = useState<Service[]>(() => safeRead(SERVICES_KEY, mockServices));
+  const [allAppointments, setAllAppointments] = useState<Appointment[]>(() => safeRead(APPOINTMENTS_KEY, mockAppointments));
 
   useEffect(() => {
     window.localStorage.setItem(JOBS_KEY, JSON.stringify(allJobs));
@@ -63,6 +69,10 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     window.localStorage.setItem(SERVICES_KEY, JSON.stringify(allServices));
   }, [allServices]);
+
+  useEffect(() => {
+    window.localStorage.setItem(APPOINTMENTS_KEY, JSON.stringify(allAppointments));
+  }, [allAppointments]);
 
   const clients = useMemo(() => {
     if (!currentUser || currentUser.role === 'super_admin') return allClients;
@@ -81,6 +91,12 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
     return allServices.filter((service) => service.clientId === currentUser.clientId);
   }, [allServices, currentUser]);
 
+  const appointments = useMemo(() => {
+    if (!currentUser) return [];
+    if (currentUser.role === 'super_admin') return allAppointments;
+    return allAppointments.filter((appointment) => appointment.clientId === currentUser.clientId);
+  }, [allAppointments, currentUser]);
+
   const labDirectory = useMemo<LabDirectoryEntry[]>(() => (
     allClients
       .filter((client) => client.type === 'Laboratorio' && client.active)
@@ -94,6 +110,7 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
     jobs,
     clients,
     services,
+    appointments,
     labDirectory,
     getJobById: (id?: string) => jobs.find((job) => job.id === id || job.code === id),
     getClientById: (id?: string) => clients.find((client) => client.id === id),
@@ -241,7 +258,29 @@ export const DentalFlowProvider = ({ children }: { children: React.ReactNode }) 
         return false;
       }));
     },
-  }), [jobs, clients, services, labDirectory, allJobs, currentUser]);
+    createAppointment: (input: AppointmentInput) => {
+      const now = new Date().toISOString();
+      const clientId = currentUser?.role === 'client_admin' ? currentUser.clientId ?? input.clientId : input.clientId;
+      const appointment: Appointment = { ...input, clientId, id: makeId('appt'), createdAt: now, updatedAt: now };
+      setAllAppointments((current) => [appointment, ...current]);
+      return appointment;
+    },
+    updateAppointment: (appointmentId: string, patch: AppointmentInput) => {
+      setAllAppointments((current) => current.map((appointment) => {
+        if (appointment.id !== appointmentId) return appointment;
+        if (currentUser?.role === 'client_admin' && appointment.clientId !== currentUser.clientId) return appointment;
+        const clientId = currentUser?.role === 'client_admin' ? currentUser.clientId ?? patch.clientId : patch.clientId;
+        return { ...appointment, ...patch, clientId, updatedAt: new Date().toISOString() };
+      }));
+    },
+    deleteAppointment: (appointmentId: string) => {
+      setAllAppointments((current) => current.filter((appointment) => {
+        if (appointment.id !== appointmentId) return true;
+        if (currentUser?.role === 'client_admin' && appointment.clientId !== currentUser.clientId) return true;
+        return false;
+      }));
+    },
+  }), [jobs, clients, services, appointments, labDirectory, allJobs, currentUser]);
 
   return (
     <DentalFlowContext.Provider value={value}>

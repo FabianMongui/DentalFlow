@@ -7,6 +7,7 @@ export type ClientPlan = 'Básico' | 'Pro' | 'Premium';
 export type UserRole = 'super_admin' | 'client_admin';
 export type PatientSex = 'Femenino' | 'Masculino' | 'Otro';
 export type LabResponse = 'Pendiente' | 'Aceptado' | 'Rechazado';
+export type AppointmentStatus = 'Programada' | 'Confirmada' | 'Completada' | 'Cancelada' | 'No asistió';
 
 export interface Client {
   id: string;
@@ -108,4 +109,21 @@ export interface JobInput {
   selectedTeeth?: string[];
   requestedLabId?: string;
   serviceId?: string;
+}
+
+export interface AppointmentInput {
+  clientId: string;
+  patientName: string;
+  patientPhone?: string;
+  startAt: string;
+  endAt: string;
+  status: AppointmentStatus;
+  notes?: string;
+  jobId?: string;
+}
+
+export interface Appointment extends AppointmentInput {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
 }

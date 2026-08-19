@@ -84,6 +84,8 @@ const SectionHeader = ({ icon: Icon, title, description }: { icon: React.Compone
 interface JobFormProps {
   job?: Job;
   initialLabId?: string;
+  initialPatientReference?: string;
+  initialPatientPhone?: string;
   onSuccess: (job: Job) => void;
   onCancel?: () => void;
   onDirtyChange?: (dirty: boolean) => void;
@@ -96,6 +98,8 @@ interface JobFormProps {
 export const JobForm = ({
   job,
   initialLabId,
+  initialPatientReference,
+  initialPatientPhone,
   onSuccess,
   onCancel,
   onDirtyChange,
@@ -109,7 +113,12 @@ export const JobForm = ({
   const isEditing = Boolean(job);
   const isSuperAdmin = currentUser?.role === 'super_admin';
   const initialFormRef = useRef<JobInput>(
-    job ? jobToFormInput(job) : buildInitialForm({ clientId: clients[0]?.id ?? '', requestedLabId: initialLabId }),
+    job ? jobToFormInput(job) : buildInitialForm({
+      clientId: clients[0]?.id ?? '',
+      requestedLabId: initialLabId,
+      patientReference: initialPatientReference ?? '',
+      patientPhone: initialPatientPhone ?? '',
+    }),
   );
   const [form, setForm] = useState<JobInput>(initialFormRef.current);
   const selectedLab = getPublicLabById(form.requestedLabId);

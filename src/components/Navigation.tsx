@@ -10,6 +10,7 @@ const trabajosItem = { to: '/trabajos', icon: Icons.Trabajos, label: 'Trabajos' 
 const reportesItem = { to: '/reportes', icon: Icons.Reportes, label: 'Reportes' };
 const configuracionItem = { to: '/configuracion', icon: Icons.Configuracion, label: 'Configuración' };
 const laboratoriosItem = { to: '/laboratorios', icon: Icons.Laboratorios, label: 'Laboratorios' };
+const citasItem = { to: '/citas', icon: Icons.Citas, label: 'Citas' };
 const serviciosItem = { to: '/servicios', icon: Icons.Servicios, label: 'Servicios' };
 const clientesItem = { to: '/clientes', icon: Icons.Clientes, label: 'Clientes' };
 const superAdminItem = { to: '/super-admin', icon: Icons.SuperAdmin, label: 'Super Admin' };
@@ -19,6 +20,7 @@ const getNavItems = (role?: UserRole, clientType?: ClientType) => {
     return [
       dashboardItem,
       trabajosItem,
+      citasItem,
       laboratoriosItem,
       clientesItem,
       serviciosItem,
@@ -29,7 +31,7 @@ const getNavItems = (role?: UserRole, clientType?: ClientType) => {
   }
 
   const items = [dashboardItem, trabajosItem];
-  if (role === 'client_admin' && clientType === 'Cliente individual') items.push(laboratoriosItem);
+  if (role === 'client_admin' && clientType === 'Cliente individual') items.push(citasItem, laboratoriosItem);
   if (role === 'client_admin' && clientType === 'Laboratorio') items.push(serviciosItem);
   items.push(reportesItem, configuracionItem);
   return items;
@@ -40,6 +42,7 @@ const bottomNavColumns: Record<number, string> = {
   5: 'grid-cols-5',
   6: 'grid-cols-6',
   8: 'grid-cols-8',
+  9: 'grid-cols-9',
 };
 
 interface SidebarProps {

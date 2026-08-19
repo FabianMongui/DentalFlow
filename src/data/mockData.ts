@@ -1,4 +1,4 @@
-import type { Client, Job, Service } from '../types';
+import type { Appointment, Client, Job, Service } from '../types';
 
 export const mockClients: Client[] = [
   {
@@ -240,5 +240,108 @@ export const mockJobs: Job[] = [
     ],
     createdAt: '2026-05-01T08:15:00.000Z',
     updatedAt: '2026-05-11T16:30:00.000Z',
+  },
+];
+
+const apptTime = (dayOffset: number, hour: number, minute = 0) => {
+  const date = new Date();
+  date.setDate(date.getDate() + dayOffset);
+  date.setHours(hour, minute, 0, 0);
+  return date.toISOString();
+};
+
+export const mockAppointments: Appointment[] = [
+  {
+    id: 'appt-001',
+    clientId: 'cli-001',
+    patientName: 'Carmen L.',
+    patientPhone: '+57 300 555 1122',
+    startAt: apptTime(0, 9, 0),
+    endAt: apptTime(0, 9, 45),
+    status: 'Confirmada',
+    notes: 'Control de corona de zirconio, revisar ajuste cervical.',
+    jobId: 'job-001',
+    createdAt: apptTime(-3, 8, 0),
+    updatedAt: apptTime(-1, 10, 0),
+  },
+  {
+    id: 'appt-002',
+    clientId: 'cli-001',
+    patientName: 'Jorge Ramírez',
+    patientPhone: '+57 301 222 3344',
+    startAt: apptTime(0, 11, 0),
+    endAt: apptTime(0, 11, 30),
+    status: 'Programada',
+    notes: 'Valoración inicial.',
+    createdAt: apptTime(-1, 15, 0),
+    updatedAt: apptTime(-1, 15, 0),
+  },
+  {
+    id: 'appt-003',
+    clientId: 'cli-001',
+    patientName: 'Paula Idárraga',
+    patientPhone: '+57 302 888 4455',
+    startAt: apptTime(1, 15, 0),
+    endAt: apptTime(1, 15, 30),
+    status: 'Programada',
+    notes: 'Limpieza y control general.',
+    createdAt: apptTime(-2, 9, 0),
+    updatedAt: apptTime(-2, 9, 0),
+  },
+  {
+    id: 'appt-004',
+    clientId: 'cli-001',
+    patientName: 'Andrés Peña',
+    startAt: apptTime(-1, 16, 0),
+    endAt: apptTime(-1, 16, 30),
+    status: 'Completada',
+    notes: 'Retiro de puntos.',
+    createdAt: apptTime(-5, 9, 0),
+    updatedAt: apptTime(-1, 17, 0),
+  },
+  {
+    id: 'appt-005',
+    clientId: 'cli-001',
+    patientName: 'Sofía Torres',
+    startAt: apptTime(-2, 10, 0),
+    endAt: apptTime(-2, 10, 30),
+    status: 'No asistió',
+    createdAt: apptTime(-6, 9, 0),
+    updatedAt: apptTime(-2, 11, 0),
+  },
+  {
+    id: 'appt-006',
+    clientId: 'cli-001',
+    patientName: 'Marcos G.',
+    startAt: apptTime(3, 8, 30),
+    endAt: apptTime(3, 9, 0),
+    status: 'Cancelada',
+    notes: 'Paciente reagendó por su cuenta.',
+    createdAt: apptTime(-4, 9, 0),
+    updatedAt: apptTime(0, 8, 0),
+  },
+  {
+    id: 'appt-007',
+    clientId: 'cli-003',
+    patientName: 'Roberto D.',
+    patientPhone: '+57 315 777 6655',
+    startAt: apptTime(0, 14, 0),
+    endAt: apptTime(0, 14, 45),
+    status: 'Confirmada',
+    notes: 'Ajuste de tono de carilla E-Max.',
+    jobId: 'job-003',
+    createdAt: apptTime(-3, 8, 0),
+    updatedAt: apptTime(-1, 12, 0),
+  },
+  {
+    id: 'appt-008',
+    clientId: 'cli-003',
+    patientName: 'Luisa Fernanda Ríos',
+    startAt: apptTime(2, 9, 30),
+    endAt: apptTime(2, 10, 0),
+    status: 'Programada',
+    notes: 'Primera consulta de ortodoncia.',
+    createdAt: apptTime(-1, 9, 0),
+    updatedAt: apptTime(-1, 9, 0),
   },
 ];

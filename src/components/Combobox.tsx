@@ -19,6 +19,7 @@ interface ComboboxProps {
 export const Combobox = ({ value, onChange, options, placeholder = 'Buscar...', emptyLabel = 'Sin resultados.', className }: ComboboxProps) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [hasEdited, setHasEdited] = useState(false);
   const [highlighted, setHighlighted] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -26,10 +27,10 @@ export const Combobox = ({ value, onChange, options, placeholder = 'Buscar...', 
   const selected = options.find((option) => option.value === value);
 
   const filtered = useMemo(() => {
-    const normalized = query.trim().toLowerCase();
+    const normalized = hasEdited ? query.trim().toLowerCase() : '';
     if (!normalized) return options;
     return options.filter((option) => option.label.toLowerCase().includes(normalized));
-  }, [options, query]);
+  }, [options, query, hasEdited]);
 
   useEffect(() => {
     if (!open) return;
@@ -47,6 +48,7 @@ export const Combobox = ({ value, onChange, options, placeholder = 'Buscar...', 
 
   const handleOpen = () => {
     setQuery(selected?.label ?? '');
+    setHasEdited(false);
     setHighlighted(Math.max(0, options.findIndex((option) => option.value === value)));
     setOpen(true);
     requestAnimationFrame(() => {
@@ -89,7 +91,7 @@ export const Combobox = ({ value, onChange, options, placeholder = 'Buscar...', 
         <input
           ref={inputRef}
           value={query}
-          onChange={(event) => { setQuery(event.target.value); setHighlighted(0); }}
+          onChange={(event) => { setQuery(event.target.value); setHasEdited(true); setHighlighted(0); }}
           onKeyDown={handleKeyDown}
           placeholder={placeholder}
           className="w-full h-12 bg-white border border-primary rounded-xl pl-4 pr-10 outline-none ring-2 ring-primary/20 transition-all text-sm font-medium text-slate-700"

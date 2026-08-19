@@ -5,6 +5,8 @@ import type { Job } from '../types';
 
 interface OpenCreateJobOptions {
   labId?: string;
+  patientReference?: string;
+  patientPhone?: string;
 }
 
 interface JobFormModalContextValue {
@@ -17,9 +19,11 @@ export const JobFormModalProvider = ({ children }: { children: React.ReactNode }
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [labId, setLabId] = useState<string | undefined>(undefined);
+  const [initialPatient, setInitialPatient] = useState<{ reference?: string; phone?: string }>({});
 
   const openCreateJob = (options?: OpenCreateJobOptions) => {
     setLabId(options?.labId);
+    setInitialPatient({ reference: options?.patientReference, phone: options?.patientPhone });
     setIsOpen(true);
   };
 
@@ -31,7 +35,14 @@ export const JobFormModalProvider = ({ children }: { children: React.ReactNode }
   return (
     <JobFormModalContext.Provider value={{ openCreateJob }}>
       {children}
-      <JobFormModal open={isOpen} onClose={() => setIsOpen(false)} onSuccess={handleSuccess} initialLabId={labId} />
+      <JobFormModal
+        open={isOpen}
+        onClose={() => setIsOpen(false)}
+        onSuccess={handleSuccess}
+        initialLabId={labId}
+        initialPatientReference={initialPatient.reference}
+        initialPatientPhone={initialPatient.phone}
+      />
     </JobFormModalContext.Provider>
   );
 };
