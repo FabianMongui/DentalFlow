@@ -35,7 +35,8 @@ import {
   Tag,
   Wrench,
   Trash2,
-  ChevronDown
+  ChevronDown,
+  CalendarClock
 } from 'lucide-react';
 
 export const Icons = {
@@ -75,5 +76,6 @@ export const Icons = {
   Tag,
   Servicios: Wrench,
   Delete: Trash2,
-  ChevronDown
+  ChevronDown,
+  Citas: CalendarClock
 };

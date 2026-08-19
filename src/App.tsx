@@ -16,6 +16,7 @@ import Settings from './pages/Settings';
 import SuperAdmin from './pages/SuperAdmin';
 import Laboratories from './pages/Laboratories';
 import Services from './pages/Services';
+import Citas from './pages/Citas';
 import Login from './pages/Login';
 
 const SIDEBAR_COLLAPSED_KEY = 'dentalflow.sidebar.collapsed';
@@ -71,6 +72,7 @@ export default function App() {
             <Route path="/configuracion" element={<RequireAuth><Layout title="Configuración" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Settings /></Layout></RequireAuth>} />
             <Route path="/super-admin" element={<RequireRole role="super_admin"><Layout title="Administración de Cuentas" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><SuperAdmin /></Layout></RequireRole>} />
             <Route path="/laboratorios" element={<RequireClientType clientType="Cliente individual"><Layout title="Laboratorios" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Laboratories /></Layout></RequireClientType>} />
+            <Route path="/citas" element={<RequireClientType clientType="Cliente individual"><Layout title="Citas" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Citas /></Layout></RequireClientType>} />
             <Route path="/servicios" element={<RequireClientType clientType="Laboratorio"><Layout title="Servicios" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Services /></Layout></RequireClientType>} />
             <Route path="*" element={<RequireAuth><Layout title="No encontrado" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Jobs /></Layout></RequireAuth>} />
           </Routes>

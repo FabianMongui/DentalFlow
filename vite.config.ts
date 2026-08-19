@@ -20,5 +20,15 @@ export default defineConfig(({mode}) => {
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
       hmr: process.env.DISABLE_HMR !== 'true',
     },
+    optimizeDeps: {
+      include: [
+        '@fullcalendar/core',
+        '@fullcalendar/react',
+        '@fullcalendar/daygrid',
+        '@fullcalendar/timegrid',
+        '@fullcalendar/interaction',
+        '@fullcalendar/list',
+      ],
+    },
   };
 });

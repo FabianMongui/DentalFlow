@@ -4,7 +4,7 @@ import { Icons } from './Icons';
 import { useAuth } from '../context/AuthContext';
 import { useDentalFlow } from '../context/DentalFlowContext';
 import { useJobFormModal } from '../context/JobFormModalContext';
-import type { JobStatus, PaymentStatus } from '../types';
+import type { AppointmentStatus, JobStatus, PaymentStatus } from '../types';
 
 export const initials = (name: string) => name.split(' ').slice(0, 2).map((word) => word[0]).join('').toUpperCase();
 
@@ -171,6 +171,20 @@ export const StatusBadge = ({ status }: { status: JobStatus }) => (
 
 export const PaymentBadge = ({ status }: { status: PaymentStatus }) => (
   <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-bold uppercase border whitespace-nowrap ${paymentClasses[status]}`}>
+    {status}
+  </span>
+);
+
+export const appointmentStatusColors: Record<AppointmentStatus, { bg: string; text: string; badge: string }> = {
+  Programada: { bg: '#e0e7ff', text: '#3730a3', badge: 'bg-indigo-50 text-indigo-700 border-indigo-100' },
+  Confirmada: { bg: '#dcfce7', text: '#166534', badge: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+  Completada: { bg: '#dbeafe', text: '#1e40af', badge: 'bg-blue-50 text-blue-700 border-blue-100' },
+  Cancelada: { bg: '#fee2e2', text: '#991b1b', badge: 'bg-red-50 text-red-600 border-red-100' },
+  'No asistió': { bg: '#ffedd5', text: '#9a3412', badge: 'bg-orange-50 text-orange-700 border-orange-100' },
+};
+
+export const AppointmentStatusBadge = ({ status }: { status: AppointmentStatus }) => (
+  <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-bold uppercase border whitespace-nowrap ${appointmentStatusColors[status].badge}`}>
     {status}
   </span>
 );

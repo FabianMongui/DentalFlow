@@ -1,0 +1,79 @@
+.df-calendar {
+  --fc-border-color: #eef0f6;
+  --fc-page-bg-color: transparent;
+  --fc-neutral-bg-color: #f8fafc;
+  --fc-today-bg-color: rgba(0, 88, 190, 0.05);
+  --fc-now-indicator-color: #0058be;
+  --fc-event-border-color: transparent;
+  --fc-list-event-hover-bg-color: #f8fafc;
+  font-family: inherit;
+}
+
+.df-calendar .fc {
+  height: 100%;
+}
+
+.df-calendar .fc-header-toolbar {
+  display: none;
+}
+
+.df-calendar .fc-scrollgrid {
+  border: none;
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.df-calendar .fc-scrollgrid-section > * {
+  border-color: var(--fc-border-color);
+}
+
+.df-calendar .fc-col-header-cell-cushion,
+.df-calendar .fc-daygrid-day-number {
+  color: #64748b;
+  font-weight: 700;
+  font-size: 0.7rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.5rem;
+}
+
+.df-calendar .fc-timegrid-slot-label-cushion {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.df-calendar .fc-timegrid-slot {
+  height: 2.50rem;
+}
+
+.df-calendar .fc-day-today {
+  background: rgba(0, 88, 190, 0.04) !important;
+}
+
+.df-calendar .fc-event {
+  border: none;
+  border-radius: 0.65rem;
+  box-shadow: none;
+  padding: 1px 2px;
+  cursor: pointer;
+}
+
+.df-calendar .fc-timegrid-event .fc-event-main {
+  padding: 2px 4px;
+}
+
+.df-calendar .fc-daygrid-event {
+  border-radius: 999px;
+  padding: 1px 6px;
+}
+
+.df-calendar .fc-list,
+.df-calendar .fc-list-day-cushion {
+  background: transparent;
+}
+
+.df-calendar a {
+  text-decoration: none;
+}
