@@ -259,7 +259,7 @@ const SuperAdmin = () => {
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${client.type === 'Laboratorio' ? 'bg-green-100 text-green-600' : 'bg-blue-100 text-blue-600'}`}>
+                    <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${client.type === 'Laboratorio' ? 'bg-secondary/10 text-secondary' : 'bg-primary/10 text-primary'}`}>
                       {client.type}
                     </span>
                   </td>

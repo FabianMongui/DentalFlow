@@ -5,6 +5,7 @@ import { Header } from './components/Common';
 import { RequireAuth, RequireRole, RequireClientType } from './components/RouteGuards';
 import { AuthProvider } from './context/AuthContext';
 import { DentalFlowProvider } from './context/DentalFlowContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { JobFormModalProvider } from './context/JobFormModalContext';
 import Dashboard from './pages/Dashboard';
 import Jobs from './pages/Jobs';
@@ -60,23 +61,25 @@ export default function App() {
   return (
     <AuthProvider>
       <DentalFlowProvider>
-        <JobFormModalProvider>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/" element={<RequireAuth><Layout title="Panel General" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Dashboard /></Layout></RequireAuth>} />
-            <Route path="/trabajos" element={<RequireAuth><Layout title="Gestión de Trabajos" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Jobs /></Layout></RequireAuth>} />
-            <Route path="/trabajos/nuevo" element={<RequireAuth><Layout title="Crear Nuevo Trabajo" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><CreateJob /></Layout></RequireAuth>} />
-            <Route path="/trabajos/:id" element={<RequireAuth><Layout title="Detalle de Trabajo" collapsed={collapsed} onToggleSidebar={toggleSidebar}><JobDetail /></Layout></RequireAuth>} />
-            <Route path="/clientes" element={<RequireRole role="super_admin"><Layout title="Clientes y Laboratorios" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Clients /></Layout></RequireRole>} />
-            <Route path="/reportes" element={<RequireAuth><Layout title="Reportes" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Reports /></Layout></RequireAuth>} />
-            <Route path="/configuracion" element={<RequireAuth><Layout title="Configuración" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Settings /></Layout></RequireAuth>} />
-            <Route path="/super-admin" element={<RequireRole role="super_admin"><Layout title="Administración de Cuentas" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><SuperAdmin /></Layout></RequireRole>} />
-            <Route path="/laboratorios" element={<RequireClientType clientType="Cliente individual"><Layout title="Laboratorios" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Laboratories /></Layout></RequireClientType>} />
-            <Route path="/citas" element={<RequireClientType clientType="Cliente individual"><Layout title="Citas" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Citas /></Layout></RequireClientType>} />
-            <Route path="/servicios" element={<RequireClientType clientType="Laboratorio"><Layout title="Servicios" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Services /></Layout></RequireClientType>} />
-            <Route path="*" element={<RequireAuth><Layout title="No encontrado" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Jobs /></Layout></RequireAuth>} />
-          </Routes>
-        </JobFormModalProvider>
+        <ThemeProvider>
+          <JobFormModalProvider>
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/" element={<RequireAuth><Layout title="Panel General" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Dashboard /></Layout></RequireAuth>} />
+              <Route path="/trabajos" element={<RequireAuth><Layout title="Gestión de Trabajos" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Jobs /></Layout></RequireAuth>} />
+              <Route path="/trabajos/nuevo" element={<RequireAuth><Layout title="Crear Nuevo Trabajo" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><CreateJob /></Layout></RequireAuth>} />
+              <Route path="/trabajos/:id" element={<RequireAuth><Layout title="Detalle de Trabajo" collapsed={collapsed} onToggleSidebar={toggleSidebar}><JobDetail /></Layout></RequireAuth>} />
+              <Route path="/clientes" element={<RequireRole role="super_admin"><Layout title="Clientes y Laboratorios" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Clients /></Layout></RequireRole>} />
+              <Route path="/reportes" element={<RequireAuth><Layout title="Reportes" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Reports /></Layout></RequireAuth>} />
+              <Route path="/configuracion" element={<RequireAuth><Layout title="Configuración" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Settings /></Layout></RequireAuth>} />
+              <Route path="/super-admin" element={<RequireRole role="super_admin"><Layout title="Administración de Cuentas" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><SuperAdmin /></Layout></RequireRole>} />
+              <Route path="/laboratorios" element={<RequireClientType clientType="Cliente individual"><Layout title="Laboratorios" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Laboratories /></Layout></RequireClientType>} />
+              <Route path="/citas" element={<RequireClientType clientType="Cliente individual"><Layout title="Citas" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Citas /></Layout></RequireClientType>} />
+              <Route path="/servicios" element={<RequireClientType clientType="Laboratorio"><Layout title="Servicios" showCreate={false} collapsed={collapsed} onToggleSidebar={toggleSidebar}><Services /></Layout></RequireClientType>} />
+              <Route path="*" element={<RequireAuth><Layout title="No encontrado" collapsed={collapsed} onToggleSidebar={toggleSidebar}><Jobs /></Layout></RequireAuth>} />
+            </Routes>
+          </JobFormModalProvider>
+        </ThemeProvider>
       </DentalFlowProvider>
     </AuthProvider>
   );

@@ -1,5 +1,13 @@
 import Swal from 'sweetalert2';
 
+/** Color de marca activo, leído del tema del cliente (ver ThemeContext). */
+const brandColor = () => {
+  const root = getComputedStyle(document.documentElement);
+  const hue = root.getPropertyValue('--brand-h').trim() || '277';
+  const chroma = root.getPropertyValue('--brand-c').trim() || '0.215';
+  return `oklch(0.457 ${chroma} ${hue})`;
+};
+
 const toast = Swal.mixin({
   toast: true,
   position: 'top-end',
@@ -50,7 +58,7 @@ export const confirmDiscard = async () => {
     confirmButtonText: 'Descartar',
     cancelButtonText: 'Seguir editando',
     confirmButtonColor: '#dc2626',
-    cancelButtonColor: '#0058be',
+    cancelButtonColor: brandColor(),
     reverseButtons: true,
   });
   return result.isConfirmed;

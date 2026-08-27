@@ -9,6 +9,16 @@ export type PatientSex = 'Femenino' | 'Masculino' | 'Otro';
 export type LabResponse = 'Pendiente' | 'Aceptado' | 'Rechazado';
 export type AppointmentStatus = 'Programada' | 'Confirmada' | 'Completada' | 'Cancelada' | 'No asistió';
 
+export type ThemeId =
+  | 'indigo'
+  | 'azul-clinico'
+  | 'turquesa'
+  | 'verde-bosque'
+  | 'violeta'
+  | 'rosa'
+  | 'terracota'
+  | 'grafito';
+
 export interface Client {
   id: string;
   name: string;
@@ -19,6 +29,7 @@ export interface Client {
   city?: string;
   active: boolean;
   plan?: ClientPlan;
+  theme?: ThemeId;
 }
 
 export interface Service {

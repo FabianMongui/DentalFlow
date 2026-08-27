@@ -32,23 +32,28 @@ export const formatDate = (value?: string) => {
   return new Intl.DateTimeFormat('es-CO', { day: '2-digit', month: 'short', year: 'numeric' }).format(date);
 };
 
-const statsCardColors: Record<StatsCardColor, string> = {
-  primary: 'text-primary border-primary/20',
-  secondary: 'text-secondary border-secondary/20',
-  tertiary: 'text-tertiary border-tertiary/20',
-  error: 'text-red-600 border-red-100',
+const statsCardColors: Record<StatsCardColor, { text: string; bg: string }> = {
+  primary: { text: 'text-primary', bg: 'bg-primary/10' },
+  secondary: { text: 'text-secondary', bg: 'bg-secondary/10' },
+  tertiary: { text: 'text-tertiary', bg: 'bg-tertiary/10' },
+  error: { text: 'text-red-600', bg: 'bg-red-50' },
 };
 
 export const StatsCard = ({ title, value, trend, trendValue, icon: Icon, color = 'primary' }: StatsCardProps) => {
   const isPositive = trend === 'up';
+  const palette = statsCardColors[color];
 
   return (
-    <div className="bg-white p-3 sm:p-4 rounded-2xl border border-outline-variant shadow-sm flex flex-col gap-1.5 group hover:border-primary transition-colors min-h-[110px]">
+    <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant card-hover flex flex-col gap-2.5 min-h-[112px]">
       <div className="flex justify-between items-start gap-2">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 group-hover:text-primary transition-colors leading-tight">{title}</span>
-        {Icon && <Icon className={`w-4 h-4 shrink-0 ${statsCardColors[color]}`} />}
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-tight">{title}</span>
+        {Icon && (
+          <span className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${palette.bg}`}>
+            <Icon className={`w-4 h-4 ${palette.text}`} />
+          </span>
+        )}
       </div>
-      <span className={`text-xl sm:text-2xl font-bold break-words truncate ${statsCardColors[color]}`}>{value}</span>
+      <span className="text-xl sm:text-2xl font-bold break-words truncate text-slate-800">{value}</span>
       {trendValue && (
         <span className={`text-xs font-medium flex items-center gap-1 ${isPositive ? 'text-secondary' : 'text-red-500'}`}>
           {isPositive ? <Icons.TrendingUp className="w-3.5 h-3.5 shrink-0" /> : <Icons.TrendingDown className="w-3.5 h-3.5 shrink-0" />}
@@ -92,16 +97,16 @@ export const Header = ({ title, showCreate = true }: { title: string, showCreate
   }, [menuOpen]);
 
   return (
-    <header className="flex justify-between items-center min-h-16 px-4 md:px-8 w-full z-40 sticky top-0 bg-white/90 backdrop-blur-md border-b border-outline-variant">
+    <header className="flex justify-between items-center min-h-16 px-4 md:px-8 w-full z-40 sticky top-0 glass border-b border-outline-variant">
       <div className="min-w-0 pr-3">
-        <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-slate-800 truncate">{title}</h1>
+        <h1 className="font-display text-lg sm:text-xl md:text-2xl font-bold text-slate-800 truncate">{title}</h1>
       </div>
       <div className="flex items-center gap-2 sm:gap-4 shrink-0">
         {showCreate && (
           <button
             type="button"
             onClick={() => openCreateJob()}
-            className="bg-primary text-white px-3 sm:px-4 py-2 rounded-xl font-bold hover:opacity-90 transition-all flex items-center gap-2 active:scale-95 shadow-lg shadow-primary/20"
+            className="bg-primary text-white px-3 sm:px-4 py-2 rounded-xl font-bold hover:bg-primary-container transition-all flex items-center gap-2 active:scale-95 shadow-md shadow-primary/25"
           >
             <Icons.Plus className="w-5 h-5" />
             <span className="hidden sm:inline">Crear trabajo</span>
@@ -118,7 +123,7 @@ export const Header = ({ title, showCreate = true }: { title: string, showCreate
             aria-haspopup="menu"
             aria-expanded={menuOpen}
             aria-label="Cuenta de usuario"
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full border-2 border-primary bg-primary/10 flex items-center justify-center text-primary font-bold shadow-sm hover:bg-primary/20 transition-colors"
+            className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold shadow-md shadow-primary/20 hover:opacity-90 transition-opacity"
           >
             {initials(displayName)}
           </button>
@@ -148,51 +153,82 @@ export const Header = ({ title, showCreate = true }: { title: string, showCreate
   );
 };
 
-const statusClasses: Record<JobStatus, string> = {
-  Recibido: 'bg-slate-100 text-slate-600 border-slate-200',
-  'En proceso': 'bg-blue-50 text-blue-700 border-blue-100',
-  'En corrección': 'bg-amber-50 text-amber-700 border-amber-100',
-  Finalizado: 'bg-emerald-50 text-emerald-700 border-emerald-100',
-  Entregado: 'bg-secondary/10 text-secondary border-secondary/20',
-  Cancelado: 'bg-red-50 text-red-600 border-red-100',
+type Tone = 'neutral' | 'brand' | 'info' | 'success' | 'warning' | 'danger';
+
+/**
+ * Los estados usan tonos semánticos fijos (no cambian con el tema del cliente),
+ * salvo los marcados como "brand", que sí siguen el color de la cuenta.
+ */
+const toneClasses: Record<Tone, { badge: string; dot: string }> = {
+  neutral: { badge: 'bg-slate-100 text-slate-600 border-slate-200', dot: 'bg-slate-400' },
+  brand: { badge: 'bg-primary/10 text-primary border-primary/20', dot: 'bg-primary' },
+  info: { badge: 'bg-info/10 text-info border-info/20', dot: 'bg-info' },
+  success: { badge: 'bg-success/10 text-success border-success/20', dot: 'bg-success' },
+  warning: { badge: 'bg-warning/10 text-warning border-warning/20', dot: 'bg-warning' },
+  danger: { badge: 'bg-danger/10 text-danger border-danger/20', dot: 'bg-danger' },
 };
 
-const paymentClasses: Record<PaymentStatus, string> = {
-  Pendiente: 'bg-amber-50 text-amber-700 border-amber-100',
-  Parcial: 'bg-blue-50 text-blue-700 border-blue-100',
-  Pagado: 'bg-secondary/10 text-secondary border-secondary/20',
+const jobStatusTones: Record<JobStatus, Tone> = {
+  Recibido: 'neutral',
+  'En proceso': 'info',
+  'En corrección': 'warning',
+  Finalizado: 'success',
+  Entregado: 'brand',
+  Cancelado: 'danger',
 };
+
+const paymentTones: Record<PaymentStatus, Tone> = {
+  Pendiente: 'warning',
+  Parcial: 'info',
+  Pagado: 'success',
+};
+
+const appointmentTones: Record<AppointmentStatus, Tone> = {
+  Programada: 'brand',
+  Confirmada: 'success',
+  Completada: 'info',
+  Cancelada: 'danger',
+  'No asistió': 'warning',
+};
+
+const badgeBase = 'inline-flex items-center gap-1.5 justify-center px-3 py-1 rounded-full text-[10px] font-bold uppercase border whitespace-nowrap';
+
+const ToneBadge = ({ tone, label, dot = true }: { tone: Tone; label: string; dot?: boolean }) => (
+  <span className={`${badgeBase} ${toneClasses[tone].badge}`}>
+    {dot && <span className={`w-1.5 h-1.5 rounded-full ${toneClasses[tone].dot}`} />}
+    {label}
+  </span>
+);
 
 export const StatusBadge = ({ status }: { status: JobStatus }) => (
-  <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-bold uppercase border whitespace-nowrap ${statusClasses[status]}`}>
-    {status}
-  </span>
+  <ToneBadge tone={jobStatusTones[status]} label={status} />
 );
 
 export const PaymentBadge = ({ status }: { status: PaymentStatus }) => (
-  <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-bold uppercase border whitespace-nowrap ${paymentClasses[status]}`}>
-    {status}
-  </span>
+  <ToneBadge tone={paymentTones[status]} label={status} />
 );
 
-export const appointmentStatusColors: Record<AppointmentStatus, { bg: string; text: string; badge: string }> = {
-  Programada: { bg: '#e0e7ff', text: '#3730a3', badge: 'bg-indigo-50 text-indigo-700 border-indigo-100' },
-  Confirmada: { bg: '#dcfce7', text: '#166534', badge: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-  Completada: { bg: '#dbeafe', text: '#1e40af', badge: 'bg-blue-50 text-blue-700 border-blue-100' },
-  Cancelada: { bg: '#fee2e2', text: '#991b1b', badge: 'bg-red-50 text-red-600 border-red-100' },
-  'No asistió': { bg: '#ffedd5', text: '#9a3412', badge: 'bg-orange-50 text-orange-700 border-orange-100' },
+/**
+ * FullCalendar pinta los eventos con estilos en línea, por eso aquí van
+ * colores CSS resueltos y no clases de Tailwind. Las expresiones oklch leen
+ * las variables del tema, así los eventos "Programada" siguen la marca.
+ */
+export const appointmentStatusColors: Record<AppointmentStatus, { bg: string; text: string }> = {
+  Programada: { bg: 'oklch(0.94 calc(var(--brand-c) * 0.2) var(--brand-h))', text: 'oklch(0.4 var(--brand-c) var(--brand-h))' },
+  Confirmada: { bg: 'oklch(0.93 0.05 163)', text: 'oklch(0.45 0.13 163)' },
+  Completada: { bg: 'oklch(0.93 0.05 258)', text: 'oklch(0.45 0.2 258)' },
+  Cancelada: { bg: 'oklch(0.93 0.05 27)', text: 'oklch(0.48 0.21 27)' },
+  'No asistió': { bg: 'oklch(0.93 0.06 58)', text: 'oklch(0.47 0.15 58)' },
 };
 
 export const AppointmentStatusBadge = ({ status }: { status: AppointmentStatus }) => (
-  <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-bold uppercase border whitespace-nowrap ${appointmentStatusColors[status].badge}`}>
-    {status}
-  </span>
+  <ToneBadge tone={appointmentTones[status]} label={status} dot={false} />
 );
 
 export const EmptyState = ({ title, description }: { title: string; description: string }) => (
   <div className="bg-white border border-dashed border-outline-variant rounded-2xl p-8 text-center">
-    <div className="w-12 h-12 mx-auto rounded-2xl bg-slate-50 flex items-center justify-center mb-4">
-      <Icons.File className="w-6 h-6 text-slate-300" />
+    <div className="w-12 h-12 mx-auto rounded-2xl bg-primary/5 flex items-center justify-center mb-4">
+      <Icons.File className="w-6 h-6 text-primary/40" />
     </div>
     <h3 className="font-bold text-slate-700">{title}</h3>
     <p className="text-sm text-slate-400 mt-1">{description}</p>
