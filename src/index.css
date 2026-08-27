@@ -1,32 +1,104 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Lexend:wght@600;700;800&display=swap');
 @import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Tema por cliente.
+
+   Solo estas cuatro variables cambian en tiempo de ejecución (ver
+   src/context/ThemeContext.tsx). Todos los tokens de color se derivan de
+   ellas manteniendo fija la luminosidad OKLCH, de modo que el contraste de
+   textos y botones no depende del color que elija el cliente.
+
+   Como el bloque de color usa `@theme inline`, las utilidades apuntan a estas
+   variables directamente: redefinirlas en cualquier contenedor re-tematiza
+   solo ese subárbol (lo usa la vista previa de Configuración).
+   --------------------------------------------------------------------------- */
+:root {
+  --brand-h: 277;    /* tono de la marca (0-360) */
+  --brand-c: 0.215;  /* croma de la marca */
+  --accent-h: 185;   /* tono del acento */
+  --accent-c: 0.104; /* croma del acento */
+}
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lexend", "Inter", ui-sans-serif, system-ui, sans-serif;
   --breakpoint-xs: 30rem;
+}
 
-  --color-primary: #0058be;
-  --color-primary-container: #2170e4;
+@theme inline {
+  /* Marca: la elige el cliente */
+  --color-primary: oklch(0.457 var(--brand-c) var(--brand-h));
+  --color-primary-container: oklch(0.585 calc(var(--brand-c) * 0.95) var(--brand-h));
+  --color-primary-soft: oklch(0.94 calc(var(--brand-c) * 0.2) var(--brand-h));
   --color-on-primary: #ffffff;
-  
-  --color-secondary: #006c49;
-  --color-secondary-container: #6cf8bb;
+
+  /* Acento: se mueve con la marca, un paso más claro y menos saturado */
+  --color-secondary: oklch(0.6 var(--accent-c) var(--accent-h));
+  --color-secondary-container: oklch(0.91 calc(var(--accent-c) * 0.9) var(--accent-h));
   --color-on-secondary: #ffffff;
-  
-  --color-tertiary: #825100;
-  --color-tertiary-container: #ffddb8;
-  
-  --color-surface: #f9f9ff;
-  --color-surface-container: #ecedf7;
-  --color-surface-container-low: #f2f3fd;
+
+  /* Terciario: ámbar fijo para destacados y avisos */
+  --color-tertiary: oklch(0.555 0.146 49);
+  --color-tertiary-container: oklch(0.902 0.073 71);
+
+  /* Estados: significado fijo, nunca cambian con la marca */
+  --color-success: oklch(0.52 0.13 163);
+  --color-info: oklch(0.5 0.2 258);
+  --color-warning: oklch(0.53 0.15 58);
+  --color-danger: oklch(0.55 0.21 27);
+
+  /* Neutros teñidos con el tono de la marca para que todo se sienta cohesivo */
+  --color-surface: oklch(0.977 0.005 var(--brand-h));
+  --color-surface-container: oklch(0.95 0.013 var(--brand-h));
+  --color-surface-container-low: oklch(0.961 0.011 var(--brand-h));
   --color-surface-container-lowest: #ffffff;
-  
-  --color-outline: #727785;
-  --color-outline-variant: #c2c6d6;
+
+  --color-outline: oklch(0.549 0.035 var(--brand-h));
+  --color-outline-variant: oklch(0.914 0.018 var(--brand-h));
 }
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-surface text-slate-900;
+    @apply bg-surface text-slate-900 antialiased;
+  }
+
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-300 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-400;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 backdrop-blur-xl;
+  }
+
+  .card-hover {
+    @apply transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg;
   }
 }

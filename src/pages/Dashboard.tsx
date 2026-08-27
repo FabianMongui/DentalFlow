@@ -41,33 +41,35 @@ const Dashboard = () => {
       animate={{ opacity: 1, y: 0 }}
       className="space-y-6 sm:space-y-8"
     >
-      <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-slate-800">Buen día, {displayName}</h2>
-          <p className="text-sm sm:text-base text-slate-500">Resumen rápido de trabajos, entregas y pagos.</p>
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-primary-container to-secondary p-5 sm:p-7 text-white shadow-xl shadow-primary/20">
+        <div className="absolute -top-16 -right-10 w-56 h-56 bg-white/10 rounded-full blur-3xl" />
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <h2 className="font-display text-2xl sm:text-3xl font-bold">Buen día, {displayName}</h2>
+            <p className="text-sm sm:text-base text-white/80 mt-1">Resumen rápido de trabajos, entregas y pagos.</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => openCreateJob()}
+            className="h-12 px-5 bg-white text-primary font-bold rounded-2xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-all hover:bg-white/90 w-fit"
+          >
+            <Icons.Plus className="w-5 h-5" />
+            Crear trabajo
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => openCreateJob()}
-          className="lg:hidden h-12 px-5 bg-primary text-white font-bold rounded-2xl shadow-xl shadow-primary/20 flex items-center justify-center gap-2 active:scale-95 transition-all"
-        >
-          <Icons.Plus className="w-5 h-5" />
-          Crear trabajo
-        </button>
       </section>
 
       <section className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4">
-        <div className="bg-primary-container p-3 sm:p-4 rounded-2xl text-white flex flex-col justify-between shadow-xl shadow-primary/20 relative overflow-hidden min-h-[120px]">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <Icons.Wallet className="w-20 h-20" />
+        <div className="bg-white p-3.5 sm:p-4 rounded-2xl border border-outline-variant card-hover flex flex-col justify-between min-h-[112px] relative overflow-hidden">
+          <div className="flex justify-between items-start gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 leading-tight">Total cobrado</span>
+            <span className="w-8 h-8 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shrink-0">
+              <Icons.Wallet className="w-4 h-4 text-white" />
+            </span>
           </div>
-          <div className="flex justify-between items-start relative z-10 gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-widest opacity-80 leading-tight">Total cobrado</span>
-            <Icons.Wallet className="bg-white/20 p-1.5 rounded-lg w-7 h-7 shrink-0" />
-          </div>
-          <div className="relative z-10">
-            <h3 className="text-xl sm:text-2xl font-bold break-words truncate">{formatCurrency(collected)}</h3>
-            <span className="text-xs font-medium opacity-80">Mes actual</span>
+          <div>
+            <h3 className="text-xl sm:text-2xl font-bold break-words truncate text-slate-800">{formatCurrency(collected)}</h3>
+            <span className="text-xs font-medium text-secondary">Mes actual</span>
           </div>
         </div>
 
@@ -81,17 +83,19 @@ const Dashboard = () => {
         <div className="lg:col-span-2 bg-white rounded-2xl border border-outline-variant p-5 sm:p-6 shadow-sm">
           <div className="flex justify-between items-start gap-4 mb-4">
             <div>
-              <h3 className="text-lg sm:text-xl font-bold">Actividad de los últimos 6 meses</h3>
+              <h3 className="text-lg sm:text-xl font-bold text-slate-800">Actividad de los últimos 6 meses</h3>
               <p className="text-xs text-slate-400 mt-1">Trabajos ingresados vs. entregados por mes</p>
             </div>
-            <Icons.Reportes className="w-5 h-5 text-primary shrink-0" />
+            <span className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <Icons.Reportes className="w-4.5 h-4.5 text-primary" />
+            </span>
           </div>
           <ActivityChart jobs={jobs} />
         </div>
 
         <div className="bg-white rounded-2xl border border-outline-variant p-5 sm:p-6 shadow-sm space-y-6">
           <div>
-            <h3 className="text-lg sm:text-xl font-bold">Resumen por categoría</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800">Resumen por categoría</h3>
             <p className="text-xs text-slate-400 mt-1">Distribución de trabajos activos y registrados.</p>
           </div>
           <div className="space-y-5">
@@ -106,15 +110,15 @@ const Dashboard = () => {
                     initial={{ width: 0 }}
                     animate={{ width: `${step.progress}%` }}
                     transition={{ duration: 1, ease: 'easeOut' }}
-                    className="h-full bg-primary"
+                    className="h-full bg-gradient-to-r from-primary to-secondary rounded-full"
                   />
                 </div>
               </div>
             ))}
           </div>
-          <div className="p-4 bg-slate-50 rounded-xl flex items-start gap-3 border border-slate-100">
+          <div className="p-4 bg-primary/5 rounded-xl flex items-start gap-3 border border-primary/10">
             <Icons.Alert className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-            <p className="text-xs text-slate-500 leading-relaxed italic">
+            <p className="text-xs text-slate-600 leading-relaxed">
               Hay {pendingCorrections.length} trabajo(s) con correcciones pendientes. Puedes gestionarlos desde el detalle.
             </p>
           </div>
@@ -124,7 +128,7 @@ const Dashboard = () => {
       <div className="bg-white rounded-2xl border border-outline-variant overflow-hidden shadow-sm">
         <div className="p-5 sm:p-6 border-b border-outline-variant flex justify-between items-center gap-4">
           <div>
-            <h3 className="text-lg sm:text-xl font-bold">Trabajos recientes</h3>
+            <h3 className="text-lg sm:text-xl font-bold text-slate-800">Trabajos recientes</h3>
             <p className="text-xs text-slate-400 mt-1">Últimos movimientos del sistema</p>
           </div>
           <Link to="/trabajos" className="text-primary font-bold text-sm hover:underline whitespace-nowrap">Ver todos</Link>

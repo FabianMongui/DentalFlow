@@ -63,20 +63,23 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
 
   return (
     <aside
-      className={`hidden lg:flex flex-col gap-1 p-4 h-screen fixed left-0 top-0 z-50 bg-white border-r border-outline-variant transition-all duration-300 ${
-        collapsed ? 'w-20' : 'w-60'
+      className={`hidden lg:flex flex-col gap-1 p-3 h-screen fixed left-0 top-0 z-50 bg-white border-r border-outline-variant transition-all duration-300 ${
+        collapsed ? 'w-20' : 'w-64'
       }`}
     >
-      <div className={`px-2 py-6 ${collapsed ? 'flex justify-center' : ''}`}>
+      <div className={`flex items-center gap-3 px-2 py-5 ${collapsed ? 'justify-center' : ''}`}>
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center shrink-0 shadow-md shadow-primary/20">
+          <Icons.Dashboard className="w-5 h-5 text-white" />
+        </div>
         {!collapsed && (
           <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-primary truncate">DentalFlow</h1>
-            <p className="text-xs text-slate-400 mt-1 truncate">Gestión simple de trabajos</p>
+            <h1 className="font-display text-lg font-bold text-slate-800 truncate leading-tight">DentalFlow</h1>
+            <p className="text-[11px] text-slate-400 truncate">Gestión simple de trabajos</p>
           </div>
         )}
-        {collapsed && <Icons.Dashboard className="w-7 h-7 text-primary" />}
       </div>
-      <nav className="flex flex-col gap-1">
+
+      <nav className="flex flex-col gap-1 mt-2">
         {navItems.map((item) => (
           <NavLink
             key={item.to}
@@ -84,15 +87,15 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
             end={item.to === '/'}
             title={collapsed ? item.label : undefined}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${collapsed ? 'justify-center px-0' : ''} ${
+              `relative flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all ${collapsed ? 'justify-center px-0' : ''} ${
                 isActive
-                  ? 'bg-secondary-container/20 text-secondary font-bold shadow-sm'
+                  ? 'bg-primary text-white font-bold shadow-md shadow-primary/25'
                   : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
               }`
             }
           >
             <item.icon className="w-5 h-5 shrink-0" />
-            {!collapsed && <span className="text-base truncate">{item.label}</span>}
+            {!collapsed && <span className="text-sm truncate">{item.label}</span>}
           </NavLink>
         ))}
       </nav>
@@ -102,7 +105,7 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
         onClick={onToggle}
         title={collapsed ? 'Expandir menú' : 'Contraer menú'}
         aria-label={collapsed ? 'Expandir menú' : 'Contraer menú'}
-        className="absolute right-0 bottom-24 translate-x-1/2 w-10 h-10 rounded-full border border-outline-variant bg-white shadow-md flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/40 transition-colors z-10"
+        className="absolute right-0 bottom-24 translate-x-1/2 w-9 h-9 rounded-full border border-outline-variant bg-white shadow-md flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/40 transition-colors z-10"
       >
         {collapsed ? <Icons.ChevronRight className="w-4 h-4" /> : <Icons.ChevronLeft className="w-4 h-4" />}
       </button>
@@ -113,19 +116,15 @@ export const Sidebar = ({ collapsed, onToggle }: SidebarProps) => {
           onClick={handleLogout}
           title="Cerrar sesión"
           aria-label="Cerrar sesión"
-          className={`flex items-center gap-3 rounded-full text-red-500 hover:bg-red-50 transition-colors ${
-            collapsed ? 'w-10 h-10 justify-center shrink-0' : 'w-full px-3 py-2'
+          className={`flex items-center gap-3 rounded-xl text-red-500 hover:bg-red-50 transition-colors ${
+            collapsed ? 'w-10 h-10 justify-center shrink-0' : 'w-full px-3.5 py-2.5'
           }`}
         >
-          <span className="w-6 h-6 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-            <Icons.Logout className="w-4 h-4" />
+          <span className="w-7 h-7 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+            <Icons.Logout className="w-3.5 h-3.5" />
           </span>
           {!collapsed && <span className="text-sm font-bold">Cerrar sesión</span>}
         </button>
-
-        {/* {!collapsed && (
-          <p className="text-[11px] text-slate-400 italic px-3 pt-1">DentalFlow v1.0 · modo demo local</p>
-        )} */}
       </div>
     </aside>
   );
@@ -138,7 +137,7 @@ export const BottomNav = () => {
   const columnsClass = bottomNavColumns[navItems.length] ?? 'grid-cols-4';
 
   return (
-    <nav className={`fixed bottom-0 left-0 w-full z-50 grid ${columnsClass} lg:hidden px-1 py-2 bg-white border-t border-outline-variant shadow-lg pb-[calc(env(safe-area-inset-bottom)+0.5rem)]`}>
+    <nav className={`fixed bottom-0 left-0 w-full z-50 grid ${columnsClass} lg:hidden px-1 py-2 glass border-t border-outline-variant shadow-[0_-4px_20px_rgba(15,23,42,0.06)] pb-[calc(env(safe-area-inset-bottom)+0.5rem)]`}>
       {navItems.map((item) => (
         <NavLink
           key={item.to}
@@ -147,13 +146,19 @@ export const BottomNav = () => {
           className={({ isActive }) =>
             `flex flex-col items-center justify-center p-1.5 rounded-xl transition-all min-w-0 ${
               isActive
-                ? 'bg-secondary-container text-secondary font-bold scale-105'
-                : 'text-slate-500'
+                ? 'text-primary font-bold'
+                : 'text-slate-400'
             }`
           }
         >
-          <item.icon className="w-5 h-5" />
-          <span className="text-[9px] uppercase font-bold mt-1 tracking-tight truncate w-full text-center">{item.label}</span>
+          {({ isActive }) => (
+            <>
+              <span className={`flex items-center justify-center w-9 h-7 rounded-full transition-all ${isActive ? 'bg-primary/10' : ''}`}>
+                <item.icon className="w-4.5 h-4.5" />
+              </span>
+              <span className="text-[9px] uppercase font-bold mt-0.5 tracking-tight truncate w-full text-center">{item.label}</span>
+            </>
+          )}
         </NavLink>
       ))}
     </nav>
